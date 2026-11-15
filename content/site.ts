@@ -4,9 +4,9 @@
  */
 export const site = {
   /** Shown on the boot screen, HUD and page titles */
-  name: "THEJAS",
-  /** Short handle used in the pixel logo (max ~6 characters looks best) */
-  handle: "THEJAS",
+  name: "AKHILESH",
+  /** Short handle used in the pixel logo and HUD (up to ~8 characters fits) */
+  handle: "AKHILESH",
   role: "Multidisciplinary Designer",
   tagline: "[One line about what you make — e.g. Designing brands, interfaces and small digital worlds.]",
   location: "[City, Country]",
