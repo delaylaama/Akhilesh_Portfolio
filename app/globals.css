@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* ───────────────────────── Theme tokens ─────────────────────────
+   World (dark) = the game. Paper (light) = editorial case studies. */
+@theme {
+  --color-void: #07080f;
+  --color-night: #0d0f1f;
+  --color-panel: #151833;
+  --color-panel-2: #1d2147;
+  --color-line: #2c3166;
+  --color-ink: #ece9ff;
+  --color-dim: #9491bf;
+  --color-gold: #ffcc33;
+  --color-mint: #5ee6c9;
+  --color-pink: #ff5ea8;
+  --color-violet: #9b7bff;
+  --color-paper: #f3f0e7;
+  --color-paper-2: #e7e2d3;
+  --color-print: #16151d;
+  --color-print-dim: #6a6672;
+
+  --font-pixel: var(--font-silkscreen), ui-monospace, monospace;
+  --font-term: var(--font-vt323), ui-monospace, monospace;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, serif;
+}
+
+:root {
+  --font-display: var(--font-instrument), Georgia, serif;
+  --hud-h: 56px;
+  /* Pixel cursors (crisp 2x pixel arrow + pointing hand) */
+  --cursor-arrow: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><path d='M3 2v17l4-4 3 7 3-1-3-7h6z' fill='%23ece9ff' stroke='%2307080f' stroke-width='2' stroke-linejoin='miter' shape-rendering='crispEdges'/></svg>") 3 2, auto;
+  --cursor-hand: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><path d='M3 2v17l4-4 3 7 3-1-3-7h6z' fill='%23ffcc33' stroke='%2307080f' stroke-width='2' stroke-linejoin='miter' shape-rendering='crispEdges'/><rect x='16' y='3' width='3' height='3' fill='%23ffcc33'/><rect x='19' y='7' width='2' height='2' fill='%23ffcc33'/></svg>") 3 2, pointer;
+}
+
+@media (pointer: fine) {
+  html { cursor: var(--cursor-arrow); }
+  a, button, [role="button"], label[for], select, summary, .cursor-hand { cursor: var(--cursor-hand); }
+}
+
+html { background: var(--color-void); color-scheme: dark; }
+body {
+  background: var(--color-night);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+::selection { background: var(--color-gold); color: var(--color-void); }
+
+/* Visible keyboard focus everywhere — a chunky pixel outline */
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 0;
+}
+
+.pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+@layer components {
+/* ─────────────── Reusable retro bits (used sparingly) ─────────────── */
+
+/* Chunky stepped "pixel" border made from box-shadows */
+.pixel-box {
+  background: var(--color-panel);
+  box-shadow:
+    0 -4px 0 0 var(--color-line), 0 4px 0 0 var(--color-line),
+    -4px 0 0 0 var(--color-line), 4px 0 0 0 var(--color-line);
+  margin: 4px;
+}
+.pixel-box--gold {
+  box-shadow:
+    0 -4px 0 0 var(--color-gold), 0 4px 0 0 var(--color-gold),
+    -4px 0 0 0 var(--color-gold), 4px 0 0 0 var(--color-gold);
+}
+
+/* Game-menu button */
+.btn-pixel {
+  font-family: var(--font-pixel);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: inline-flex; align-items: center; gap: .6em;
+  padding: .75em 1.1em;
+  background: var(--color-panel-2);
+  color: var(--color-ink);
+  box-shadow: inset -4px -4px 0 0 rgba(0,0,0,.45), inset 4px 4px 0 0 rgba(255,255,255,.08), 0 0 0 3px var(--color-void);
+  transition: transform .08s steps(2), background .12s;
+}
+.btn-pixel:hover { background: var(--color-gold); color: var(--color-void); }
+.btn-pixel:active { transform: translateY(2px); box-shadow: inset 4px 4px 0 0 rgba(0,0,0,.45), 0 0 0 3px var(--color-void); }
+.btn-pixel--gold { background: var(--color-gold); color: var(--color-void); }
+.btn-pixel--gold:hover { background: var(--color-ink); }
+
+/* Blinking selection caret for menus */
+.caret::before { content: "▶"; display: inline-block; width: 1.4em; color: var(--color-gold); visibility: hidden; }
+.caret[data-active="true"]::before, .caret:hover::before, .caret:focus-visible::before { visibility: visible; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.blink { animation: blink 1.1s steps(1) infinite; }
+
+/* CRT: scanlines + soft vignette. Apply to a positioned wrapper. */
+.crt { position: relative; }
+.crt::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0,0,0,.22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* Chromatic aberration text — headings only */
+.chroma { text-shadow: -2px 0 0 rgba(255, 94, 168, .7), 2px 0 0 rgba(94, 230, 201, .7); }
+
+/* 4×4 Bayer dither pattern used for placeholders and backgrounds */
+.dither {
+  background-color: var(--color-panel);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' shape-rendering='crispEdges'><rect x='0' y='0' width='1' height='1' fill='%232c3166'/><rect x='2' y='2' width='1' height='1' fill='%232c3166'/><rect x='2' y='0' width='1' height='1' fill='%23232755'/><rect x='0' y='2' width='1' height='1' fill='%23232755'/></svg>");
+  background-size: 8px 8px;
+  image-rendering: pixelated;
+}
+.dither-paper {
+  background-color: var(--color-paper-2);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' shape-rendering='crispEdges'><rect x='0' y='0' width='1' height='1' fill='%23d6d0bd'/><rect x='2' y='2' width='1' height='1' fill='%23d6d0bd'/></svg>");
+  background-size: 8px 8px;
+}
+
+/* Starfield-ish background for world pages */
+.world-bg {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(155,123,255,.18), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(94,230,201,.10), transparent 60%),
+    var(--color-night);
+}
+
+}
+
+/* Konami code: palette swap */
+html[data-secret="on"] { --color-gold: #ff5ea8; --color-mint: #ffcc33; --color-pink: #5ee6c9; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
